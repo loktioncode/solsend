@@ -228,8 +228,8 @@ export default function Home() {
                                     className="product"
                                     alt="solana-logo"
                                 />
-                                <Link href="https://github.com/loktioncode">
-                                    <ColorButton variant="outlined">Github</ColorButton>
+                                <Link href="https://drive.google.com/file/d/1viAU152ut2dcL94ithpreTNjfC6oH0MW/view?usp=sharing">
+                                    <ColorButton variant="outlined">csv template</ColorButton>
                                 </Link>
 
                             </Stack>

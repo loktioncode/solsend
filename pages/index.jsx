@@ -5,6 +5,16 @@ import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 
 
+const ColorButton = styled(Button)(({ theme }) => ({
+  color: "#fff",
+  backgroundColor: "transparent",
+  border: "1px solid #fff",
+  '&:hover': {
+      backgroundColor: "#yfyfy",
+      border: "1px solid #298096",
+      color: '#298096'
+  },
+}));
 export default function Home() {
   const ColorButton = styled(Button)(({ theme }) => ({
     color: "#0000",
@@ -26,11 +36,17 @@ export default function Home() {
 
           <div className="card">
             <div className="leftside">
-              <img
-                src="https://solana.com/src/img/branding/solanaLogoMark.svg"
-                className="product"
-                alt="solana-logo"
-              />
+              <Stack spacing={10} direction="column">
+                <img
+                  src="https://solana.com/src/img/branding/solanaLogoMark.svg"
+                  className="product"
+                  alt="solana-logo"
+                />
+                <Link href="https://github.com/loktioncode">
+                  <ColorButton variant="outlined">Github</ColorButton>
+                </Link>
+
+              </Stack>
             </div>
             <div className="rightside">
               <div  >
