@@ -41,7 +41,7 @@ export default function Home() {
 
                 <p style={{ padding: 10 }}>You will need a PRIVATE KEY to sign transactions<br /> (<b>NB:</b> this is the privatekey to wallet that created tokens)</p>
 
-                <em>IF YOU WANT TO RUN CODE IN YOUR SERVER OR CONTRIBUTE REACH OUT ON
+                <em>IF YOU WANT TO RUN CODE IN YOUR SERVER OR CONTRIBUTE FELL FREE TO REACH OUT ON
                   <a target='_blank' href="https://twitter.com/loktioncode"> TWITTER <img className="twitter" src="https://img.icons8.com/nolan/96/twitter.png" /></a>
                 </em>
 

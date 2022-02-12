@@ -1,8 +1,7 @@
 import Head from 'next/head'
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import * as web3 from "@solana/web3.js";
 import * as splToken from "@solana/spl-token";
-import ConnectToPhantom from "../components/ConnectToPhantom.tsx";
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import Link from 'next/link'
