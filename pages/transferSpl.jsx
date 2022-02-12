@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { useState} from "react";
+import { useState } from "react";
 import * as web3 from "@solana/web3.js";
 import * as splToken from "@solana/spl-token";
 import Backdrop from '@mui/material/Backdrop';
@@ -17,356 +17,360 @@ const ColorButton = styled(Button)(({ theme }) => ({
     '&:hover': {
         backgroundColor: "#yfyfy",
         border: "1px solid #298096",
-        color:'#298096'
-      },
-  }));
+        color: '#298096'
+    },
+}));
 import {
-  useCSVReader,
-  lightenDarkenColor,
-  formatFileSize,
+    useCSVReader,
+    lightenDarkenColor,
+    formatFileSize,
 } from 'react-papaparse';
 
 const GREY = '#CCC';
 const GREY_LIGHT = 'rgba(255, 255, 255, 0.4)';
 const DEFAULT_REMOVE_HOVER_COLOR = '#A01919';
 const REMOVE_HOVER_COLOR_LIGHT = lightenDarkenColor(
-  DEFAULT_REMOVE_HOVER_COLOR,
-  40
+    DEFAULT_REMOVE_HOVER_COLOR,
+    40
 );
 const GREY_DIM = '#686868';
 
 const styles = {
-  zone: {
-    alignItems: 'center',
-    border: `2px dashed ${GREY}`,
-    borderRadius: 20,
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    justifyContent: 'center',
-    padding: 20,
-    cursor: 'pointer',
-  },
-  file: {
-    background: 'linear-gradient(to bottom, #EEE, #DDD)',
-    borderRadius: 20,
-    display: 'flex',
-    height: 120,
-    width: 120,
-    position: 'relative',
-    zIndex: 10,
-    flexDirection: 'column',
-    justifyContent: 'center',
-  },
-  info: {
-    alignItems: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    paddingLeft: 10,
-    paddingRight: 10,
-  },
-  size: {
-    backgroundColor: GREY_LIGHT,
-    borderRadius: 3,
-    marginBottom: '0.5em',
-    justifyContent: 'center',
-    display: 'flex',
-  },
-  name: {
-    backgroundColor: GREY_LIGHT,
-    borderRadius: 3,
-    fontSize: 12,
-    marginBottom: '0.5em',
-  },
-  progressBar: {
-    bottom: 14,
-    position: 'absolute',
-    width: '100%',
-    paddingLeft: 10,
-    paddingRight: 10,
-  },
-  zoneHover: {
-    borderColor: GREY_DIM,
-  },
-  default: {
-    borderColor: GREY,
-  },
-  remove: {
-    height: 23,
-    position: 'absolute',
-    right: 6,
-    top: 6,
-    width: 23,
-  },
+    zone: {
+        alignItems: 'center',
+        border: `2px dashed ${GREY}`,
+        borderRadius: 20,
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        justifyContent: 'center',
+        padding: 20,
+        cursor: 'pointer',
+    },
+    file: {
+        background: 'linear-gradient(to bottom, #EEE, #DDD)',
+        borderRadius: 20,
+        display: 'flex',
+        height: 120,
+        width: 120,
+        position: 'relative',
+        zIndex: 10,
+        flexDirection: 'column',
+        justifyContent: 'center',
+    },
+    info: {
+        alignItems: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        paddingLeft: 10,
+        paddingRight: 10,
+    },
+    size: {
+        backgroundColor: GREY_LIGHT,
+        borderRadius: 3,
+        marginBottom: '0.5em',
+        justifyContent: 'center',
+        display: 'flex',
+    },
+    name: {
+        backgroundColor: GREY_LIGHT,
+        borderRadius: 3,
+        fontSize: 12,
+        marginBottom: '0.5em',
+    },
+    progressBar: {
+        bottom: 14,
+        position: 'absolute',
+        width: '100%',
+        paddingLeft: 10,
+        paddingRight: 10,
+    },
+    zoneHover: {
+        borderColor: GREY_DIM,
+    },
+    default: {
+        borderColor: GREY,
+    },
+    remove: {
+        height: 23,
+        position: 'absolute',
+        right: 6,
+        top: 6,
+        width: 23,
+    },
 
 };
 
 
 export default function Home() {
 
-  const [tokenAccountAddress, setTokenAccountAddress] = useState("");
-  const [tokenPrivateKey, setTokenPrivateKey] = useState("");
-  const [network, setNetwork] = useState("");
-  const [transferBtn, setTransferBtn] = useState(false);
+    const [tokenAccountAddress, setTokenAccountAddress] = useState("");
+    const [tokenPrivateKey, setTokenPrivateKey] = useState("");
+    const [network, setNetwork] = useState("");
+    const [transferBtn, setTransferBtn] = useState(false);
 
 
-  const { CSVReader } = useCSVReader();
-  const [zoneHover, setZoneHover] = useState(false);
-  const [removeHoverColor, setRemoveHoverColor] = useState(
-    DEFAULT_REMOVE_HOVER_COLOR
-  );
-
-  var whitelistAccount = {}, whiteListedAccounts = []
-
-
-  const [open, setOpen] = useState(false);
-  const handleClose = () => {
-    setOpen(false);
-    window.location.reload();
-  };
-  const handleToggle = () => {
-    setOpen(!open);
-  };
-
-  async function handleTokenTransaction() {
-
-    handleToggle()
-
-    const MY_SECRET_KEY = tokenPrivateKey.split(",")
-
-    const connection = new web3.Connection(
-      web3.clusterApiUrl(network),
-      'confirmed',
+    const { CSVReader } = useCSVReader();
+    const [zoneHover, setZoneHover] = useState(false);
+    const [removeHoverColor, setRemoveHoverColor] = useState(
+        DEFAULT_REMOVE_HOVER_COLOR
     );
 
-    const fromWallet = web3.Keypair.fromSecretKey(
-      new Uint8Array(MY_SECRET_KEY)
-    )
-
-    //to wallet
-    let tokenRecieverPubkey
-
-    // Construct my token class
-    var tokenAccount = new web3.PublicKey(tokenAccountAddress);
-    var myToken = new splToken.Token(
-      connection,
-      tokenAccount,
-      splToken.TOKEN_PROGRAM_ID,
-      fromWallet
-    );
+    var whitelistAccount = {}, whiteListedAccounts = []
 
 
-    for (let i = 0; i < whiteListedAccounts.length; i++) {
-      tokenRecieverPubkey = new web3.PublicKey(whiteListedAccounts[i].address)
+    const [open, setOpen] = useState(false);
+    const handleClose = () => {
+        setOpen(false);
+        window.location.reload();
+    };
+    const handleToggle = () => {
+        setOpen(!open);
+    };
 
-      // Create associated token accounts for my token if they don't exist yet
-      var fromTokenAccount = await myToken.getOrCreateAssociatedAccountInfo(
-        fromWallet.publicKey
-      )
-      var toTokenAccount = await myToken.getOrCreateAssociatedAccountInfo(
-        tokenRecieverPubkey
-      )
+    async function handleTokenTransaction() {
 
-      // Add token transfer instructions to transaction
-      var transferTokens = new web3.Transaction().add(
-        splToken.Token.createTransferInstruction(
-          splToken.TOKEN_PROGRAM_ID,
-          fromTokenAccount.address,
-          toTokenAccount.address,
-          fromWallet.publicKey,
-          [],
-          whiteListedAccounts[i].tokens
+        handleToggle()
+
+        const MY_SECRET_KEY = tokenPrivateKey.split(",")
+
+        const connection = new web3.Connection(
+            web3.clusterApiUrl(network),
+            'confirmed',
+        );
+
+        const fromWallet = web3.Keypair.fromSecretKey(
+            new Uint8Array(MY_SECRET_KEY)
         )
-      );
 
-      const signature = await web3.sendAndConfirmTransaction(
-        connection,
-        transferTokens,
-        [fromWallet],
-        { commitment: 'confirmed' },
-      );
+        //to wallet
+        let tokenRecieverPubkey
+
+        // Construct my token class
+        var tokenAccount = new web3.PublicKey(tokenAccountAddress);
+        var myToken = new splToken.Token(
+            connection,
+            tokenAccount,
+            splToken.TOKEN_PROGRAM_ID,
+            fromWallet
+        );
 
 
-      console.log("Transaction confirmed with signature:", signature)
+        for (let i = 0; i < whiteListedAccounts.length; i++) {
+            tokenRecieverPubkey = new web3.PublicKey(whiteListedAccounts[i].address)
 
-      console.log("MA TOKEN ABAYA!")
+            // Create associated token accounts for my token if they don't exist yet
+            var fromTokenAccount = await myToken.getOrCreateAssociatedAccountInfo(
+                fromWallet.publicKey
+            )
+            var toTokenAccount = await myToken.getOrCreateAssociatedAccountInfo(
+                tokenRecieverPubkey
+            )
+
+            // Add token transfer instructions to transaction
+            var transferTokens = new web3.Transaction().add(
+                splToken.Token.createTransferInstruction(
+                    splToken.TOKEN_PROGRAM_ID,
+                    fromTokenAccount.address,
+                    toTokenAccount.address,
+                    fromWallet.publicKey,
+                    [],
+                    whiteListedAccounts[i].tokens
+                )
+            );
+
+            const signature = await web3.sendAndConfirmTransaction(
+                connection,
+                transferTokens,
+                [fromWallet],
+                { commitment: 'confirmed' },
+            );
+
+
+            console.log("Transaction confirmed with signature:", signature)
+
+            console.log("MA TOKEN ABAYA!")
+        }
+
+        setTimeout(function () {
+            handleClose();
+        }, 2000);
+
+
     }
-    handleClose();
-    
-  }
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    handleTokenTransaction()
-  }
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        handleTokenTransaction()
+    }
 
 
 
-  return (
-    <div className="container">
-      <Head>
-        <title>SendTokens</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    return (
+        <div className="container">
+            <Head>
+                <title>SendTokens</title>
+                <link rel="icon" href="/favicon.ico" />
+            </Head>
 
 
 
-      <main>
-        <div className="mainscreen">
-          {/* <img src="https://image.freepik.com/free-vector/purple-background-with-neon-frame_52683-34124.jpg" className="bgimg " alt=""> */}
-          <div className="card">
-       
-            <div className="leftside">
-            <Stack spacing={10} direction="column">
-            <img
-                src="https://solana.com/src/img/branding/solanaLogoMark.svg"
-                className="product"
-                alt="solana-logo"
-              />
-                <Link href="https://github.com/loktioncode">
-                  <ColorButton variant="outlined">Github</ColorButton>
-                </Link>
+            <main>
+                <div className="mainscreen">
+                    {/* <img src="https://image.freepik.com/free-vector/purple-background-with-neon-frame_52683-34124.jpg" className="bgimg " alt=""> */}
+                    <div className="card">
 
-              </Stack>
-           
-              
-           
-            </div>
-            <div className="rightside">
-              <form action="" onSubmit={handleSubmit}>
-                <h1>Distribute SPL tokens</h1>
-                <h2>Tranfer info</h2>
+                        <div className="leftside">
+                            <Stack spacing={10} direction="column">
+                                <img
+                                    src="https://solana.com/src/img/branding/solanaLogoMark.svg"
+                                    className="product"
+                                    alt="solana-logo"
+                                />
+                                <Link href="https://github.com/loktioncode">
+                                    <ColorButton variant="outlined">Github</ColorButton>
+                                </Link>
 
-                <p>TOKEN ACCOUNT ADDRESS</p>
-                <input type="text" className="inputbox" onChange={(e) => setTokenAccountAddress(e.target.value)} required />
-                <p>PRIVATE KEY</p>
-                <input type="password" className="inputbox" onChange={(e) => setTokenPrivateKey(e.target.value)} required />
-
-                <p>NETWORK/CHAIN</p>
-                <select className="inputbox" onChange={(e) => setNetwork(e.target.value)} required>
-                  <option value="">--Select a Chain--</option>
-                  <option value="devnet">DevNet</option>
-                  <option value="mainnet">MainNet</option>
-                </select>
-                <div className="expcvv">
+                            </Stack>
 
 
-                  <CSVReader
-                    onUploadAccepted={(results) => {
-                      setTransferBtn(true);
-                      for (let index = 1; index < results.data.length; index++) {
-                        const element = results.data[index];
 
-                        if (element[0] !== null && element[0] !== '' && element[0] != 'undefined') {
-                          // console.log(element[0]);
-                          // console.log(element[1])
-                          whitelistAccount.address = element[0];
-                          whitelistAccount.tokens = element[1];
-                          whiteListedAccounts.push(whitelistAccount);
-                        }
-
-                      }
-                      console.log('---------------------------');
-                      console.log(whiteListedAccounts);
-                      console.log('---------------------------');
-
-                      setZoneHover(false);
-                    }}
-                    onDragOver={(event) => {
-                      event.preventDefault();
-                      setZoneHover(true);
-                    }}
-                    onDragLeave={(event) => {
-                      event.preventDefault();
-                      setZoneHover(false);
-                    }}
-                  >
-                    {({
-                      getRootProps,
-                      acceptedFile,
-                      ProgressBar,
-                      getRemoveFileProps,
-                      Remove,
-                    }) => (
-                      <>
-                        <div
-                          {...getRootProps()}
-                          style={Object.assign(
-                            {},
-                            styles.zone,
-                            zoneHover && styles.zoneHover
-                          )}
-                        >
-                          {acceptedFile ? (
-                            <>
-                              <div style={styles.file}>
-                                <div style={styles.info}>
-                                  <span style={styles.size}>
-                                    {formatFileSize(acceptedFile.size)}
-                                  </span>
-                                  <span style={styles.name}>{acceptedFile.name}</span>
-                                </div>
-                                <div style={styles.progressBar}>
-                                  <ProgressBar />
-                                </div>
-                                <div
-                                  {...getRemoveFileProps()}
-                                  style={styles.remove}
-                                  onMouseOver={(event) => {
-                                    event.preventDefault();
-                                    setRemoveHoverColor(REMOVE_HOVER_COLOR_LIGHT);
-                                  }}
-                                  onMouseOut={(event) => {
-                                    event.preventDefault();
-                                    setRemoveHoverColor(DEFAULT_REMOVE_HOVER_COLOR);
-                                  }}
-                                >
-                                  <Remove color={removeHoverColor} />
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            'Drop Whitelist CSV file here or click to upload'
-                          )}
                         </div>
-                      </>
-                    )}
-                  </CSVReader>
+                        <div className="rightside">
+                            <form action="" onSubmit={handleSubmit}>
+                                <h1>Distribute SPL tokens</h1>
+                                <h2>Tranfer info</h2>
+
+                                <p>TOKEN ACCOUNT ADDRESS</p>
+                                <input type="text" className="inputbox" onChange={(e) => setTokenAccountAddress(e.target.value)} required />
+                                <p>PRIVATE KEY</p>
+                                <input type="password" className="inputbox" onChange={(e) => setTokenPrivateKey(e.target.value)} required />
+
+                                <p>NETWORK/CHAIN</p>
+                                <select className="inputbox" onChange={(e) => setNetwork(e.target.value)} required>
+                                    <option value="">--Select a Chain--</option>
+                                    <option value="devnet">DevNet</option>
+                                    <option value="mainnet">MainNet</option>
+                                </select>
+                                <div className="expcvv">
+
+
+                                    <CSVReader
+                                        onUploadAccepted={(results) => {
+                                            setTransferBtn(true);
+                                            for (let index = 1; index < results.data.length; index++) {
+                                                const element = results.data[index];
+
+                                                if (element[0] !== null && element[0] !== '' && element[0] != 'undefined') {
+                                                    // console.log(element[0]);
+                                                    // console.log(element[1])
+                                                    whitelistAccount.address = element[0];
+                                                    whitelistAccount.tokens = element[1];
+                                                    whiteListedAccounts.push(whitelistAccount);
+                                                }
+
+                                            }
+                                            console.log('---------------------------');
+                                            console.log(whiteListedAccounts);
+                                            console.log('---------------------------');
+
+                                            setZoneHover(false);
+                                        }}
+                                        onDragOver={(event) => {
+                                            event.preventDefault();
+                                            setZoneHover(true);
+                                        }}
+                                        onDragLeave={(event) => {
+                                            event.preventDefault();
+                                            setZoneHover(false);
+                                        }}
+                                    >
+                                        {({
+                                            getRootProps,
+                                            acceptedFile,
+                                            ProgressBar,
+                                            getRemoveFileProps,
+                                            Remove,
+                                        }) => (
+                                            <>
+                                                <div
+                                                    {...getRootProps()}
+                                                    style={Object.assign(
+                                                        {},
+                                                        styles.zone,
+                                                        zoneHover && styles.zoneHover
+                                                    )}
+                                                >
+                                                    {acceptedFile ? (
+                                                        <>
+                                                            <div style={styles.file}>
+                                                                <div style={styles.info}>
+                                                                    <span style={styles.size}>
+                                                                        {formatFileSize(acceptedFile.size)}
+                                                                    </span>
+                                                                    <span style={styles.name}>{acceptedFile.name}</span>
+                                                                </div>
+                                                                <div style={styles.progressBar}>
+                                                                    <ProgressBar />
+                                                                </div>
+                                                                <div
+                                                                    {...getRemoveFileProps()}
+                                                                    style={styles.remove}
+                                                                    onMouseOver={(event) => {
+                                                                        event.preventDefault();
+                                                                        setRemoveHoverColor(REMOVE_HOVER_COLOR_LIGHT);
+                                                                    }}
+                                                                    onMouseOut={(event) => {
+                                                                        event.preventDefault();
+                                                                        setRemoveHoverColor(DEFAULT_REMOVE_HOVER_COLOR);
+                                                                    }}
+                                                                >
+                                                                    <Remove color={removeHoverColor} />
+                                                                </div>
+                                                            </div>
+                                                        </>
+                                                    ) : (
+                                                        'Drop Whitelist CSV file here or click to upload'
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
+                                    </CSVReader>
+                                </div>
+                                <p></p>
+
+
+                                {(transferBtn === true) ? <button className="button" type="submit">Transfer Tokens</button> : <></>}
+                                {/* <button className="button" type="submit">Transfer Tokens</button> */}
+
+                            </form>
+
+                            {/* <ConnectToPhantom /> */}
+
+                        </div>
+                    </div>
+                    <a
+                        href="https://twitter.com/loktioncode"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'white' }}
+                    >
+                        Powered by{' '}
+                        @loktioncode
+                    </a>
                 </div>
-                <p></p>
 
-            
-               { (transferBtn === true) ? <button className="button" type="submit">Transfer Tokens</button> :  <></>}
-               {/* <button className="button" type="submit">Transfer Tokens</button> */}
-
-              </form>
-
-              {/* <ConnectToPhantom /> */}
-
-            </div>
-          </div>
-          <a
-            href="https://twitter.com/loktioncode"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'white' }}
-          >
-            Powered by{' '}
-            @loktioncode
-          </a>
-        </div>
-
-        <Backdrop
-          sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-          open={open}
-          onClick={handleClose}
-        >
-          <CircularProgress color="inherit" />
-        </Backdrop>
-      </main>
+                <Backdrop
+                    sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                    open={open}
+                    onClick={handleClose}
+                >
+                    <CircularProgress color="inherit" />
+                </Backdrop>
+            </main>
 
 
-      <style jsx>{`
+            <style jsx>{`
 
 
 .mainscreen
@@ -506,7 +510,7 @@ transform: scale(1.05) translateY(-3px);
 }
       `}</style>
 
-      <style jsx global>{`
+            <style jsx global>{`
     body {
       font-family: 'Roboto', sans-serif!important;
     margin:0;
@@ -514,6 +518,6 @@ transform: scale(1.05) translateY(-3px);
     box-sizing: border-box;
     }
       `}</style>
-    </div>
-  )
+        </div>
+    )
 }
