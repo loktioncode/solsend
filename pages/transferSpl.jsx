@@ -8,7 +8,7 @@ import Link from 'next/link'
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
-
+import Alert from '@mui/material/Alert';
 
 const ColorButton = styled(Button)(({ theme }) => ({
     color: "#fff",
@@ -123,6 +123,7 @@ export default function Home() {
     const handleClose = () => {
         setOpen(false);
         window.location.reload();
+        
     };
     const handleToggle = () => {
         setOpen(!open);
@@ -201,7 +202,7 @@ export default function Home() {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        handleTokenTransaction()
+        handleTokenTransaction();
     }
 
 
@@ -363,10 +364,11 @@ export default function Home() {
                 <Backdrop
                     sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
                     open={open}
-                    onClick={handleClose}
-                >
+                    onClick={handleClose}>
                     <CircularProgress color="inherit" />
+                   
                 </Backdrop>
+                
             </main>
 
 
