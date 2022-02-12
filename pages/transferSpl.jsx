@@ -229,7 +229,7 @@ export default function Home() {
                                     alt="solana-logo"
                                 />
                                 <Link href="https://drive.google.com/file/d/1viAU152ut2dcL94ithpreTNjfC6oH0MW/view?usp=sharing">
-                                    <ColorButton variant="outlined">csv template</ColorButton>
+                                    <ColorButton variant="outlined">whitelist csv template</ColorButton>
                                 </Link>
 
                             </Stack>
