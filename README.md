@@ -1,4 +1,4 @@
-# send spl-tokens
+# send spl-tokens to multiple wallets
 
 ### project can be is live here: [solsend](https://solsend.netlify.app/transferSpl)
 
