@@ -122,7 +122,7 @@ export default function Home() {
     const [open, setOpen] = useState(false);
     const handleClose = () => {
         setOpen(false);
-        window.location.reload();
+        // window.location.reload();
         
     };
     const handleToggle = () => {
