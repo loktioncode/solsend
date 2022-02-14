@@ -1,5 +1,8 @@
 # send spl-tokens
 
+### project can be found here: [solsend](https://solsend.netlify.app/transferSpl)
+
+
 A package to send the SPL-TOKENS to multiple wallets so users can mint in presale. This was made in order to attempt to provide a way to send tokens to whitelisted wallets without sending gumdrop log for users to claim tokens.
 
 ## Overview
@@ -24,10 +27,10 @@ To get started, you will need to have the following in order to send:
 
 you can run the command `spl-tokens accounts` to see token accounts under your wallet.
 
-###Secret key for signing transaction must be from the token account holder must be in the format as below.
+###Secret key must be in the format as below.
 
 ```
-_SECRET_KEY = > 1,2,3,4,5,...,64
+_SECRET_KEY= > 1,2,3,4,5,...,64
 ```
 
 You can also have this key in the .env.local and update the ui accordingly.
@@ -51,6 +54,6 @@ This is a beta version! Please do your own testing and use at your own risk.
 All contributions are welcome and encouraged. Send through a PR if you find any bugs. In an ideal world.
 ## Contact
 
-Twitter: @loktioncode
+Twitter: loktioncodeWallyWilliams2
 
 Discord: @loktioncode#2959
