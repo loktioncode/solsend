@@ -8,7 +8,8 @@ import Link from 'next/link'
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
-import Alert from '@mui/material/Alert';
+import {List} from "./utils.js"
+
 
 const ColorButton = styled(Button)(({ theme }) => ({
     color: "#fff",
@@ -20,87 +21,6 @@ const ColorButton = styled(Button)(({ theme }) => ({
         color: '#298096'
     },
 }));
-import {
-    useCSVReader,
-    lightenDarkenColor,
-    formatFileSize,
-} from 'react-papaparse';
-
-const GREY = '#CCC';
-const GREY_LIGHT = 'rgba(255, 255, 255, 0.4)';
-const DEFAULT_REMOVE_HOVER_COLOR = '#A01919';
-const REMOVE_HOVER_COLOR_LIGHT = lightenDarkenColor(
-    DEFAULT_REMOVE_HOVER_COLOR,
-    40
-);
-const GREY_DIM = '#686868';
-
-const styles = {
-    zone: {
-        alignItems: 'center',
-        border: `2px dashed ${GREY}`,
-        borderRadius: 20,
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        justifyContent: 'center',
-        padding: 20,
-        cursor: 'pointer',
-    },
-    file: {
-        background: 'linear-gradient(to bottom, #EEE, #DDD)',
-        borderRadius: 20,
-        display: 'flex',
-        height: 120,
-        width: 120,
-        position: 'relative',
-        zIndex: 10,
-        flexDirection: 'column',
-        justifyContent: 'center',
-    },
-    info: {
-        alignItems: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        paddingLeft: 10,
-        paddingRight: 10,
-    },
-    size: {
-        backgroundColor: GREY_LIGHT,
-        borderRadius: 3,
-        marginBottom: '0.5em',
-        justifyContent: 'center',
-        display: 'flex',
-    },
-    name: {
-        backgroundColor: GREY_LIGHT,
-        borderRadius: 3,
-        fontSize: 12,
-        marginBottom: '0.5em',
-    },
-    progressBar: {
-        bottom: 14,
-        position: 'absolute',
-        width: '100%',
-        paddingLeft: 10,
-        paddingRight: 10,
-    },
-    zoneHover: {
-        borderColor: GREY_DIM,
-    },
-    default: {
-        borderColor: GREY,
-    },
-    remove: {
-        height: 23,
-        position: 'absolute',
-        right: 6,
-        top: 6,
-        width: 23,
-    },
-
-};
-
 
 export default function Home() {
 
@@ -110,20 +30,11 @@ export default function Home() {
     const [transferBtn, setTransferBtn] = useState(false);
 
 
-    const { CSVReader } = useCSVReader();
-    const [zoneHover, setZoneHover] = useState(false);
-    const [removeHoverColor, setRemoveHoverColor] = useState(
-        DEFAULT_REMOVE_HOVER_COLOR
-    );
-
-    var whitelistAccount = {}, whiteListedAccounts = []
-
 
     const [open, setOpen] = useState(false);
     const handleClose = () => {
         setOpen(false);
         // window.location.reload();
-        
     };
     const handleToggle = () => {
         setOpen(!open);
@@ -156,9 +67,12 @@ export default function Home() {
             fromWallet
         );
 
+        console.log(`--------------------------------------------`)
+        console.log(`Transfer to ${List.length} wallets Started `)
+        console.log(`--------------------------------------------`)
 
-        for (let i = 0; i < whiteListedAccounts.length; i++) {
-            tokenRecieverPubkey = new web3.PublicKey(whiteListedAccounts[i].address)
+        for (let i = 0; List.length > i; i++) {
+            tokenRecieverPubkey = new web3.PublicKey(List[i].address)
 
             // Create associated token accounts for my token if they don't exist yet
             var fromTokenAccount = await myToken.getOrCreateAssociatedAccountInfo(
@@ -176,7 +90,7 @@ export default function Home() {
                     toTokenAccount.address,
                     fromWallet.publicKey,
                     [],
-                    whiteListedAccounts[i].tokens
+                    List[i].tokens
                 )
             );
 
@@ -186,10 +100,9 @@ export default function Home() {
                 [fromWallet],
                 { commitment: 'confirmed' },
             );
-
-
+            List.splice(i, 1);
+            console.log("length reduced to >",List.length)
             console.log("Transaction confirmed with signature:", signature)
-
             console.log("MA TOKEN ABAYA!")
         }
 
@@ -251,97 +164,13 @@ export default function Home() {
                                 <select className="inputbox" onChange={(e) => setNetwork(e.target.value)} required>
                                     <option value="">--Select a Chain--</option>
                                     <option value="devnet">DevNet</option>
-                                    <option value="mainnet">MainNet</option>
+                                    <option value="mainnet-beta">MainNet</option>
                                 </select>
-                                <div className="expcvv">
-
-
-                                    <CSVReader
-                                        onUploadAccepted={(results) => {
-                                            setTransferBtn(true);
-                                            for (let index = 1; index < results.data.length; index++) {
-                                                const element = results.data[index];
-
-                                                if (element[0] !== null && element[0] !== '' && element[0] != 'undefined') {
-                                                    // console.log(element[0]);
-                                                    // console.log(element[1])
-                                                    whitelistAccount.address = element[0];
-                                                    whitelistAccount.tokens = element[1];
-                                                    whiteListedAccounts.push(whitelistAccount);
-                                                }
-
-                                            }
-                                            console.log('---------------------------');
-                                            console.log(whiteListedAccounts);
-                                            console.log('---------------------------');
-
-                                            setZoneHover(false);
-                                        }}
-                                        onDragOver={(event) => {
-                                            event.preventDefault();
-                                            setZoneHover(true);
-                                        }}
-                                        onDragLeave={(event) => {
-                                            event.preventDefault();
-                                            setZoneHover(false);
-                                        }}
-                                    >
-                                        {({
-                                            getRootProps,
-                                            acceptedFile,
-                                            ProgressBar,
-                                            getRemoveFileProps,
-                                            Remove,
-                                        }) => (
-                                            <>
-                                                <div
-                                                    {...getRootProps()}
-                                                    style={Object.assign(
-                                                        {},
-                                                        styles.zone,
-                                                        zoneHover && styles.zoneHover
-                                                    )}
-                                                >
-                                                    {acceptedFile ? (
-                                                        <>
-                                                            <div style={styles.file}>
-                                                                <div style={styles.info}>
-                                                                    <span style={styles.size}>
-                                                                        {formatFileSize(acceptedFile.size)}
-                                                                    </span>
-                                                                    <span style={styles.name}>{acceptedFile.name}</span>
-                                                                </div>
-                                                                <div style={styles.progressBar}>
-                                                                    <ProgressBar />
-                                                                </div>
-                                                                <div
-                                                                    {...getRemoveFileProps()}
-                                                                    style={styles.remove}
-                                                                    onMouseOver={(event) => {
-                                                                        event.preventDefault();
-                                                                        setRemoveHoverColor(REMOVE_HOVER_COLOR_LIGHT);
-                                                                    }}
-                                                                    onMouseOut={(event) => {
-                                                                        event.preventDefault();
-                                                                        setRemoveHoverColor(DEFAULT_REMOVE_HOVER_COLOR);
-                                                                    }}
-                                                                >
-                                                                    <Remove color={removeHoverColor} />
-                                                                </div>
-                                                            </div>
-                                                        </>
-                                                    ) : (
-                                                        'Drop Whitelist CSV file here or click to upload'
-                                                    )}
-                                                </div>
-                                            </>
-                                        )}
-                                    </CSVReader>
-                                </div>
+                               
                                 <p></p>
 
 
-                                {(transferBtn === true) ? <button className="button" type="submit">Transfer Tokens</button> : <></>}
+                                <button className="button" type="submit">Transfer Tokens</button>
                                 {/* <button className="button" type="submit">Transfer Tokens</button> */}
 
                             </form>
