@@ -1,4 +1,4 @@
-export const List = [
+export default List = [
   {
     "address": "8E2z7RCTWqJje55SZqXUzJsGXWaLzFwB8PPXkz3XosKQ",
     "tokens": 5
