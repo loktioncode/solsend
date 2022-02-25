@@ -102,6 +102,7 @@ export default function Home() {
             );
             List.splice(i, 1);
             console.log("length reduced to >",List.length)
+            console.log(List)
             console.log("Transaction confirmed with signature:", signature)
             console.log("MA TOKEN ABAYA!")
         }
